@@ -1,0 +1,20 @@
+# 启动了consul配置中心，程序启动后会优先读取bootstrap.yml配置文件读取consul配置
+spring:
+  application:
+    name: gateway
+  cloud:
+    nacos:
+      server-addr: 127.0.0.1:8848
+      discovery:
+        enabled: true
+        group: DEFAULT_GROUP
+        server-addr: 127.0.0.1:8848
+      config:
+        enabled: true
+        file-extension: yaml
+        group: DEFAULT_GROUP
+        server-addr: 127.0.0.1:8848
+        prefix: gateway
+        refresh-enabled: true
+      password: nacos
+      username: nacos

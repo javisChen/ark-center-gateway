@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: gateway
+kt:
+  cloud:
+    gateway:
+      allow-list:
+        - /auth/login
+        - 231
