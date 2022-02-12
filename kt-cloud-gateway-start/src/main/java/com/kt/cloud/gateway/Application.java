@@ -8,11 +8,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 /**
  * @author chenjiawei
  */
-@SpringBootApplication(
-		scanBasePackages = {
-				"com.kt.cloud.gateway",
-				"com.kt.component.config"
-		})
+@SpringBootApplication()
 @EnableDiscoveryClient
 @EnableFeignClients(basePackages = {"com.kt.cloud.iam.api"})
 public class Application {

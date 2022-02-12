@@ -12,7 +12,7 @@ public class AccessTokenProperties {
     /**
      * token的Header
      */
-    private String tokenHeader = "Authorization";
+    private String tokenHeader = "X-Authorization";
 
     /**
      * 认证token前缀

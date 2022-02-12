@@ -1,34 +1,51 @@
-#server:
-#  port: 8082
-#spring:
-#  cloud:
-#    gateway:
-#      discovery:
-#        locator:
-#          enabled: true
-#          lower-case-service-id: true
-#      routes:
-#        - id: gateway
-#          uri: localhost:${server.port}
-#          predicates:
-#            - Path=/${spring.application.name}/**
-#        - id: iam
-#          uri: lb://iam
-#          predicates:
-#            - Path=/iam/**
-#        - id: cop
-#          uri: lb://cop
-#          predicates:
-#            - Path=/cop/**
-#  application:
-#    name: gateway
-#  main:
-#    allow-bean-definition-overriding: true
-#logging:
-#  level:
-#    root: info
-#kt:
-#  cloud:
-#    gateway:
-#      allow-list:
-#        - /auth/login
+server:
+  port: 8082
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: gateway
+          uri: localhost:${server.port}
+          predicates:
+            - Path=/${spring.application.name}/**
+        - id: iam
+          uri: lb://iam
+          predicates:
+            - Path=/iam/**
+        - id: cop
+          uri: lb://cop
+          predicates:
+            - Path=/cop/**
+  application:
+    name: gateway
+  main:
+    allow-bean-definition-overriding: true
+logging:
+  level:
+    root: info
+    org:
+      springframework:
+        cloud:
+          gateway:
+            filter:
+              LoadBalancerClientFilter: trace
+    com:
+      kt:
+        cloud:
+          iam:
+            api:
+              access:
+                AccessApi: debug
+kt:
+  cloud:
+    gateway:
+      allow-list:
+        - /iam/v1/login/account
+    feign:
+      transmit-headers:
+      - X-Authorization
+      - X-TraceId

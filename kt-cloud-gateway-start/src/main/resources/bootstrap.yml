@@ -10,7 +10,7 @@ spring:
         group: DEFAULT_GROUP
         server-addr: 127.0.0.1:8848
       config:
-        enabled: true
+        enabled: false
         file-extension: yaml
         group: DEFAULT_GROUP
         server-addr: 127.0.0.1:8848

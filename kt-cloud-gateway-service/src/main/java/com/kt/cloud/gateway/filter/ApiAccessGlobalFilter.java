@@ -11,6 +11,7 @@ import com.kt.component.exception.ExceptionFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.core.Ordered;
 import org.springframework.http.server.RequestPath;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
@@ -24,7 +25,7 @@ import java.util.concurrent.CompletableFuture;
  */
 @Component
 @Slf4j
-public class ApiAccessGlobalFilter implements GlobalFilter {
+public class ApiAccessGlobalFilter implements GlobalFilter, Ordered {
 
     private final AccessApiFacade accessApiFacade;
     private final CloudGatewayConfig cloudGatewayConfig;
@@ -81,4 +82,8 @@ public class ApiAccessGlobalFilter implements GlobalFilter {
         return cloudGatewayConfig.getAllowList().contains(request.getPath().value());
     }
 
+    @Override
+    public int getOrder() {
+        return 0;
+    }
 }
