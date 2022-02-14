@@ -19,9 +19,9 @@ public class DefaultTokenExtractor implements TokenExtractor {
 
     @Override
     public String extract(ServerHttpRequest request, AccessTokenProperties properties) {
-        String token = extractFromParameterMap(request, properties);
-        if (StringUtils.isNotBlank(token)) {
-            return token;
+        String accessToken = extractFromParameterMap(request, properties);
+        if (StringUtils.isNotEmpty(accessToken)) {
+            return accessToken;
         }
         HttpHeaders headers = request.getHeaders();
         if (CollUtil.isEmpty(headers)) {
@@ -29,21 +29,18 @@ public class DefaultTokenExtractor implements TokenExtractor {
         }
         String tokenHeaderPrefix = properties.getTokenHeaderPrefix();
         String tokenHeader = properties.getTokenHeader();
-        String extractedToken = headers.getFirst(tokenHeader);
-        if (!StringUtils.startsWith(extractedToken, tokenHeaderPrefix)) {
-            return "";
-        }
-        return extractedToken.substring(tokenHeaderPrefix.length());
+        accessToken = headers.getFirst(tokenHeader);
+        accessToken = StringUtils.substringAfter(accessToken, tokenHeaderPrefix);
+        return accessToken;
     }
 
     private String extractFromParameterMap(ServerHttpRequest request, AccessTokenProperties properties) {
         String token = null;
-        if (CollUtil.isEmpty(request.getQueryParams())) {
-            return "";
-        }
-        List<String> tokenParamVal = request.getQueryParams().get(properties.getTokenQueryParam());
-        if (CollUtil.isNotEmpty(request.getQueryParams()) && tokenParamVal.size() > 0) {
-            token = tokenParamVal.get(0);
+        if (CollUtil.isNotEmpty(request.getQueryParams())) {
+            List<String> tokenParamVal = request.getQueryParams().get(properties.getTokenQueryParam());
+            if (CollUtil.isNotEmpty(tokenParamVal)) {
+                token = tokenParamVal.get(0);
+            }
         }
         return token;
     }

@@ -51,7 +51,9 @@ public class ApiAccessGlobalFilter implements GlobalFilter, Ordered {
         }
         // 请求认证中心处理
         ApiAccessResponse accessResponse = requestApiAccess(request, path);
-        log.info("[API ACCESS FILTER] -> [REMOTE CHECK RESULT] : {}", accessResponse.getHasPermission());
+        if (!accessResponse.getHasPermission()) {
+            log.warn("[API ACCESS FILTER] -> [REMOTE CHECK RESULT] : {}", accessResponse.getHasPermission());
+        }
         return chain.filter(exchange);
 
     }
