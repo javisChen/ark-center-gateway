@@ -1,6 +1,7 @@
 package com.kt.cloud.gateway.filter;
 
 import cn.hutool.core.collection.CollUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.kt.cloud.gateway.acl.AccessApiFacade;
 import com.kt.cloud.gateway.config.AccessTokenProperties;
 import com.kt.cloud.gateway.config.CloudGatewayConfig;
@@ -8,6 +9,7 @@ import com.kt.cloud.gateway.extractor.TokenExtractor;
 import com.kt.cloud.iam.api.access.request.ApiAccessRequest;
 import com.kt.cloud.iam.api.access.response.ApiAccessResponse;
 import com.kt.component.exception.ExceptionFactory;
+import com.kt.component.microservice.rpc.exception.RpcException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -19,6 +21,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 /**
  * API访问权限过滤器
@@ -51,10 +54,11 @@ public class ApiAccessGlobalFilter implements GlobalFilter, Ordered {
         }
         // 请求认证中心处理
         ApiAccessResponse accessResponse = requestApiAccess(request, path);
-        if (!accessResponse.getHasPermission()) {
-            log.warn("[API ACCESS FILTER] -> [REMOTE CHECK RESULT] : {}", accessResponse.getHasPermission());
+        if (accessResponse.getHasPermission()) {
+            return chain.filter(exchange);
         }
-        return chain.filter(exchange);
+        log.warn("[API ACCESS FILTER] -> [REMOTE CHECK RESULT] : {}", accessResponse.getHasPermission());
+        throw ExceptionFactory.bizException(accessResponse.getMsg());
 
     }
 
@@ -65,11 +69,14 @@ public class ApiAccessGlobalFilter implements GlobalFilter, Ordered {
         apiAccessRequest.setRequestUri(path.value());
         apiAccessRequest.setHttpMethod(request.getMethodValue());
         apiAccessRequest.setApplicationCode("0");
-        CompletableFuture<ApiAccessResponse> apiAccess =
-                CompletableFuture.supplyAsync(() -> accessApiFacade.getApiAccess(apiAccessRequest));
+
+        CompletableFuture<ApiAccessResponse> apiAccess = CompletableFuture.supplyAsync(() -> accessApiFacade.getApiAccess(apiAccessRequest))
+               ;
         ApiAccessResponse apiAccessResponse;
         try {
             apiAccessResponse = apiAccess.get();
+        } catch (RpcException e) {
+            throw ExceptionFactory.sysException(e.getMessage());
         } catch (Exception e) {
             log.error("调用认证中心失败：", e);
             throw ExceptionFactory.sysException("调用认证中心失败", e);

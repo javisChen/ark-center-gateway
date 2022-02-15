@@ -33,6 +33,12 @@ logging:
           gateway:
             filter:
               LoadBalancerClientFilter: trace
+    com:
+      kt:
+        cloud:
+          iam:
+            api:
+              access: debug
 kt:
   cloud:
     gateway:
