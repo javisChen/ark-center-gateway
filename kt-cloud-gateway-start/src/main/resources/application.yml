@@ -38,11 +38,15 @@ logging:
         cloud:
           iam:
             api:
-              access: debug
+              access: info
 kt:
   cloud:
     gateway:
       allow-list:
         - /iam/v1/login/account
+        - /iam/v1/logout
+        - /iam/v1/user/permission/elements
+        - /iam/v1/user/permission/routes
+        - /iam/v1/user/info
     feign:
       transmit-headers: X-Authorization, X-Trace-Id

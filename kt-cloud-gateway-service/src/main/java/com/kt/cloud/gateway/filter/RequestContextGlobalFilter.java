@@ -25,6 +25,7 @@ public class RequestContextGlobalFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        log.info("RequestContextGlobalFilter execute......");
         ServerHttpRequest request = exchange.getRequest();
 
         // 生成TradeId

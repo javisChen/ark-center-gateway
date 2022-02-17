@@ -1,8 +1,11 @@
 package com.kt.cloud.gateway.context;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 public class GatewayRequestContext {
 
     private static final String GATEWAY_REQUEST_HEADERS_KEY = "GATEWAY_REQUEST_HEADERS";
@@ -10,6 +13,7 @@ public class GatewayRequestContext {
     private static final ThreadLocal<Map<String, Object>> THREAD_LOCAL = new InheritableThreadLocal<>();
 
     public static void clearContext() {
+        log.info("GatewayRequestContext clearContext......");
         if (THREAD_LOCAL.get() != null) {
             THREAD_LOCAL.get().clear();
         }
