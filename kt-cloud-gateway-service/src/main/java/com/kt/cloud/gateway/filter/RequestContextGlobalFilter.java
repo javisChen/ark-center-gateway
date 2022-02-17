@@ -21,7 +21,7 @@ import java.util.UUID;
 @Slf4j
 public class RequestContextGlobalFilter implements GlobalFilter, Ordered {
 
-    private final String TRACE_ID = "X-TraceId";
+    private final String TRACE_ID = "X-Trace-Id";
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -32,7 +32,8 @@ public class RequestContextGlobalFilter implements GlobalFilter, Ordered {
 
         // 把header存储到线程上下文，方便后面的操作
         saveHeadersToContext(request);
-        return chain.filter(exchange);
+        return chain.filter(exchange)
+                .doFinally(signalType -> GatewayRequestContext.clearContext());
 
     }
 

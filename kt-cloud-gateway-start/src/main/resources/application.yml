@@ -45,6 +45,4 @@ kt:
       allow-list:
         - /iam/v1/login/account
     feign:
-      transmit-headers:
-      - X-Authorization
-      - X-TraceId
+      transmit-headers: X-Authorization, X-Trace-Id
