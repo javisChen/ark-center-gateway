@@ -33,8 +33,7 @@ public class RequestContextGlobalFilter implements GlobalFilter, Ordered {
 
         // 把header存储到线程上下文，方便后面的操作
         saveHeadersToContext(request);
-        return chain.filter(exchange)
-                .doFinally(signalType -> GatewayRequestContext.clearContext());
+        return chain.filter(exchange);
 
     }
 
