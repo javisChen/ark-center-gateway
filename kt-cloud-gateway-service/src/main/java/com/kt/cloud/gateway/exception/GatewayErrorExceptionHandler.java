@@ -37,13 +37,17 @@ public class GatewayErrorExceptionHandler implements ErrorWebExceptionHandler {
             response.setStatusCode(((ResponseStatusException) ex).getStatus());
         }
         String message = ex.getMessage();
+        String service = "";
         if (ex instanceof NotFoundException) {
             message = ((NotFoundException) ex).getReason();
+        } else if (ex instanceof GatewayBizException) {
+            message = ex.getMessage();
+            service = ((GatewayBizException) ex).getService();
         }
 
         log.error(GATEWAY_TAG + "网关路由异常 ->", ex);
 
-        ServerResponse serverResponse = SingleResponse.error(String.valueOf(HttpStatus.SERVICE_UNAVAILABLE.value()),
+        ServerResponse serverResponse = SingleResponse.error(service, String.valueOf(HttpStatus.SERVICE_UNAVAILABLE.value()),
                 message);
         final byte[] result = JSONObject.toJSONBytes(serverResponse);
         return response

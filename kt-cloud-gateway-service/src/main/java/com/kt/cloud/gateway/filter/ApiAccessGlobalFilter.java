@@ -1,14 +1,14 @@
 package com.kt.cloud.gateway.filter;
 
 import cn.hutool.core.collection.CollUtil;
-import com.alibaba.fastjson.JSONObject;
 import com.kt.cloud.gateway.acl.AccessApiFacade;
 import com.kt.cloud.gateway.config.AccessTokenProperties;
 import com.kt.cloud.gateway.config.CloudGatewayConfig;
+import com.kt.cloud.gateway.exception.GatewayBizException;
 import com.kt.cloud.gateway.extractor.TokenExtractor;
 import com.kt.cloud.iam.api.access.request.ApiAccessRequest;
 import com.kt.cloud.iam.api.access.response.ApiAccessResponse;
-import com.kt.component.exception.ExceptionFactory;
+import com.kt.component.dto.SingleResponse;
 import com.kt.component.microservice.rpc.exception.RpcException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -21,7 +21,6 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
 /**
  * API访问权限过滤器
@@ -53,33 +52,47 @@ public class ApiAccessGlobalFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange);
         }
         // 请求认证中心处理
-        ApiAccessResponse accessResponse = requestApiAccess(request, path);
-        if (accessResponse.getHasPermission()) {
+        SingleResponse<ApiAccessResponse> apiAccessResponse = requestApiAccess(request, path);
+        ApiAccessResponse apiAccessResponseData = apiAccessResponse.getData();
+        String service = apiAccessResponse.getService();
+        if (apiAccessResponseData.getHasPermission()) {
             return chain.filter(exchange);
         }
-        log.warn("[API ACCESS FILTER] -> [REMOTE CHECK RESULT] : {}", accessResponse.getHasPermission());
-        throw ExceptionFactory.bizException(accessResponse.getMsg());
+        log.warn("[API ACCESS FILTER] -> [REMOTE CHECK RESULT] : {}", apiAccessResponseData.getHasPermission());
+        throw new GatewayBizException(service, apiAccessResponse.getMsg());
 
     }
 
-    private ApiAccessResponse requestApiAccess(ServerHttpRequest request, RequestPath path) {
-        ApiAccessRequest apiAccessRequest = new ApiAccessRequest();
+    private SingleResponse<ApiAccessResponse> requestApiAccess(ServerHttpRequest request, RequestPath path) {
         String accessToken = tokenExtractor.extract(request, accessTokenProperties);
+        ApiAccessRequest apiAccessRequest = createApiAccessRequest(request, path, accessToken);
+        CompletableFuture<SingleResponse<ApiAccessResponse>> apiAccess
+                = CompletableFuture.supplyAsync(() -> accessApiFacade.getApiAccess(apiAccessRequest));
+        SingleResponse<ApiAccessResponse> apiAccessResponse;
+        apiAccessResponse = checkAndGet(apiAccess);
+        return apiAccessResponse;
+    }
+
+    private ApiAccessRequest createApiAccessRequest(ServerHttpRequest request, RequestPath path, String accessToken) {
+        ApiAccessRequest apiAccessRequest = new ApiAccessRequest();
         apiAccessRequest.setAccessToken(accessToken);
         apiAccessRequest.setRequestUri(path.value());
         apiAccessRequest.setHttpMethod(request.getMethodValue());
         apiAccessRequest.setApplicationCode("0");
+        return apiAccessRequest;
+    }
 
-        CompletableFuture<ApiAccessResponse> apiAccess = CompletableFuture.supplyAsync(() -> accessApiFacade.getApiAccess(apiAccessRequest))
-               ;
-        ApiAccessResponse apiAccessResponse;
+    private SingleResponse<ApiAccessResponse> checkAndGet(CompletableFuture<SingleResponse<ApiAccessResponse>> apiAccess) {
+        SingleResponse<ApiAccessResponse> apiAccessResponse;
         try {
             apiAccessResponse = apiAccess.get();
-        } catch (RpcException e) {
-            throw ExceptionFactory.sysException(e.getMessage());
         } catch (Exception e) {
-            log.error("调用认证中心失败：", e);
-            throw ExceptionFactory.sysException("调用认证中心失败", e);
+            log.error("调用认证中心发生异常：", e);
+            if (e.getCause() instanceof RpcException) {
+                RpcException rpcException = (RpcException) e.getCause();
+                throw new GatewayBizException(rpcException.getService(), rpcException.getMessage());
+            }
+            throw new GatewayBizException("iam", "调用认证中心失败：" + e.getMessage());
         }
         return apiAccessResponse;
     }
