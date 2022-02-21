@@ -38,7 +38,7 @@ logging:
         cloud:
           iam:
             api:
-              access: info
+              access: debug
 kt:
   cloud:
     gateway:
@@ -47,6 +47,8 @@ kt:
         - /iam/v1/logout
         - /iam/v1/user/permission/elements
         - /iam/v1/user/permission/routes
-        - /iam/v1/user/info
     feign:
       transmit-headers: X-Authorization, X-Trace-Id
+feign:
+  okhttp:
+    enabled: true

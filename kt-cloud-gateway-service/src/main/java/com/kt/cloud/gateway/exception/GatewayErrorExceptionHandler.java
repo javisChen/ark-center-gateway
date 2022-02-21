@@ -1,8 +1,11 @@
 package com.kt.cloud.gateway.exception;
 
+import cn.hutool.core.io.IoUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.kt.component.dto.ServerResponse;
 import com.kt.component.dto.SingleResponse;
+import com.kt.component.microservice.rpc.exception.RpcException;
+import feign.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler;
 import org.springframework.cloud.gateway.support.NotFoundException;
@@ -14,6 +17,9 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 重写webflux的异常处理，把错误信息已统一格式返回
@@ -38,19 +44,40 @@ public class GatewayErrorExceptionHandler implements ErrorWebExceptionHandler {
         }
         String message = ex.getMessage();
         String service = "";
+        ServerResponse serverResponse = null;
         if (ex instanceof NotFoundException) {
             message = ((NotFoundException) ex).getReason();
+        } else if (ex instanceof RpcException) {
+            RpcException rpcException = (RpcException) ex;
+            Response feignResponse = rpcException.getResponse();
+            response.setStatusCode(HttpStatus.resolve(feignResponse.status()));
+            service = rpcException.getService();
+            serverResponse = SingleResponse.error(service, String.valueOf(feignResponse.status()), rpcException.getMessage());
         } else if (ex instanceof GatewayBizException) {
+            response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
             message = ex.getMessage();
             service = ((GatewayBizException) ex).getService();
+            serverResponse = SingleResponse.error(service, String.valueOf(HttpStatus.SERVICE_UNAVAILABLE.value()),
+                    message);
+        } else {
+            serverResponse = SingleResponse.error(service, String.valueOf(HttpStatus.SERVICE_UNAVAILABLE.value()),
+                    message);
         }
 
         log.error(GATEWAY_TAG + "网关路由异常 ->", ex);
-
-        ServerResponse serverResponse = SingleResponse.error(service, String.valueOf(HttpStatus.SERVICE_UNAVAILABLE.value()),
-                message);
         final byte[] result = JSONObject.toJSONBytes(serverResponse);
         return response
                 .writeWith(Mono.fromSupplier(() -> response.bufferFactory().wrap(result)));
+    }
+
+    private String readFromBody(Response feignResponse) {
+        Response.Body body = feignResponse.body();
+        String bodyString = "";
+        try {
+            bodyString = IoUtil.read(body.asInputStream(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bodyString;
     }
 }

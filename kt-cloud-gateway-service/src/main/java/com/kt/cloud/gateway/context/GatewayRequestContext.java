@@ -13,7 +13,7 @@ public class GatewayRequestContext {
     private static final ThreadLocal<Map<String, Object>> THREAD_LOCAL = new InheritableThreadLocal<>();
 
     public static void clearContext() {
-        log.info("GatewayRequestContext clearContext......");
+        log.info("GatewayRequestContext clearContext...... {}" , Thread.currentThread().getId());
         if (THREAD_LOCAL.get() != null) {
             THREAD_LOCAL.get().clear();
         }

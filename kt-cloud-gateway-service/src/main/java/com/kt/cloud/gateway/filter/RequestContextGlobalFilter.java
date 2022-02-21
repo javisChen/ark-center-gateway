@@ -25,16 +25,13 @@ public class RequestContextGlobalFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        log.info("RequestContextGlobalFilter execute......");
+        log.info("RequestContextGlobalFilter execute...... {}", Thread.currentThread().getId());
         ServerHttpRequest request = exchange.getRequest();
 
         // 生成TradeId
         generateTradeId(request);
 
-        // 把header存储到线程上下文，方便后面的操作
-        saveHeadersToContext(request);
         return chain.filter(exchange);
-
     }
 
     /**
@@ -50,6 +47,7 @@ public class RequestContextGlobalFilter implements GlobalFilter, Ordered {
 
     private void saveHeadersToContext(ServerHttpRequest request) {
         Map<String, String> headerMap = request.getHeaders().toSingleValueMap();
+        log.info("set header -> {}", headerMap);
         GatewayRequestContext.setHeaders(headerMap);
     }
 
