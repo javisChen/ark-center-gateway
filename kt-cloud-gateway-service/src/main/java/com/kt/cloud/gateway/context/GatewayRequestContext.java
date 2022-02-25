@@ -36,7 +36,6 @@ public class GatewayRequestContext {
 
     public static Map<String, String> getHeaders() {
         Map<String, Object> map = THREAD_LOCAL.get();
-        Object o = map.get(GATEWAY_REQUEST_HEADERS_KEY);
-        return (Map<String, String>) o;
+        return (Map<String, String>) map.get(GATEWAY_REQUEST_HEADERS_KEY);
     }
 }

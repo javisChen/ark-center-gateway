@@ -4,17 +4,58 @@ spring:
     name: gateway
   cloud:
     nacos:
-      server-addr: 127.0.0.1:8848
       discovery:
-        enabled: true
+        enabled: ${nacos-discovery-enabled}
+        server-addr: ${discovery-server-addr}
+        namespace: ${nacos-discovery-namespace}
         group: DEFAULT_GROUP
-        server-addr: 127.0.0.1:8848
       config:
-        enabled: false
-        file-extension: yaml
+        enabled: ${nacos-config-enabled}
+        server-addr: ${config-server-addr}
+        namespace: ${nacos-config-namespace}
         group: DEFAULT_GROUP
-        server-addr: 127.0.0.1:8848
-        prefix: gateway
+        file-extension: yml
+        prefix: ${spring.application.name}
         refresh-enabled: true
-      password: nacos
-      username: nacos
+      password: ${nacos-username}
+      username: ${nacos-password}
+  profiles:
+    active: local
+
+---
+# 本地开发环境，默认关闭服务注册以及关闭读取远程配置
+spring:
+  profiles: local
+nacos-discovery-namespace: aaff0c75-80b1-4c85-ad3f-c625501368ba
+nacos-config-namespace: aaff0c75-80b1-4c85-ad3f-c625501368ba
+discovery-server-addr: 127.0.0.1:8848
+config-server-addr: 127.0.0.1:8848
+nacos-username: nacos
+nacos-password: nacos
+nacos-discovery-enabled: true
+nacos-config-enabled: true
+---
+# 开发环境
+spring:
+  profiles: dev
+nacos-discovery-namespace: aaff0c75-80b1-4c85-ad3f-c625501368ba
+nacos-config-namespace: aaff0c75-80b1-4c85-ad3f-c625501368ba
+discovery-server-addr: 127.0.0.1:8848
+config-server-addr: 127.0.0.1:8848
+nacos-username: nacos
+nacos-password: nacos
+nacos-discovery-enabled: true
+nacos-config-enabled: true
+
+---
+# 集成测试环境
+spring:
+  profiles: sit
+nacos-discovery-namespace: 74ac3a8d-d15e-4f1b-a5cd-112f438c975d
+nacos-config-namespace: 74ac3a8d-d15e-4f1b-a5cd-112f438c975d
+discovery-server-addr: 127.0.0.1:8848
+config-server-addr: 127.0.0.1:8848
+nacos-username: nacos
+nacos-password: nacos
+nacos-discovery-enabled: true
+nacos-config-enabled: true
