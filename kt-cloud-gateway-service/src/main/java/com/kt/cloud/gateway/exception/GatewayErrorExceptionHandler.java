@@ -2,6 +2,7 @@ package com.kt.cloud.gateway.exception;
 
 import cn.hutool.core.io.IoUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.kt.component.dto.BizErrorCode;
 import com.kt.component.dto.ServerResponse;
 import com.kt.component.dto.SingleResponse;
 import com.kt.component.microservice.rpc.exception.RpcException;
@@ -49,19 +50,24 @@ public class GatewayErrorExceptionHandler implements ErrorWebExceptionHandler {
             message = ((NotFoundException) ex).getReason();
         } else if (ex instanceof RpcException) {
             RpcException rpcException = (RpcException) ex;
-            Response feignResponse = rpcException.getResponse();
-            response.setStatusCode(HttpStatus.resolve(feignResponse.status()));
+            response.setStatusCode(HttpStatus.resolve(rpcException.getResponse().status()));
             service = rpcException.getService();
-            serverResponse = SingleResponse.error(service, String.valueOf(feignResponse.status()), rpcException.getMessage());
+            message = rpcException.getMessage();
+            String bizErrorCode = rpcException.getBizErrorCode();
+            serverResponse = SingleResponse.error(service, bizErrorCode, message);
         } else if (ex instanceof GatewayBizException) {
             response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
             message = ex.getMessage();
             service = ((GatewayBizException) ex).getService();
             serverResponse = SingleResponse.error(service, String.valueOf(HttpStatus.SERVICE_UNAVAILABLE.value()),
                     message);
+        } else if (ex instanceof ResponseStatusException) {
+            ResponseStatusException responseStatusException = (ResponseStatusException) ex;
+            response.setStatusCode(responseStatusException.getStatus());
+            message = ex.getMessage();
+            serverResponse = SingleResponse.error(service, BizErrorCode.USER_ERROR.getCode(), message);
         } else {
-            serverResponse = SingleResponse.error(service, String.valueOf(HttpStatus.SERVICE_UNAVAILABLE.value()),
-                    message);
+            serverResponse = SingleResponse.error(service, String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), message);
         }
 
         log.error(GATEWAY_TAG + "网关路由异常 ->", ex);

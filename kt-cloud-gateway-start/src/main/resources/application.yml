@@ -16,8 +16,8 @@ spring:
           uri: lb://iam
           predicates:
             - Path=/iam/**
-        - id: cop
-          uri: lb://cop
+        - id: eop
+          uri: lb://eop
           predicates:
             - Path=/cop/**
   application:
