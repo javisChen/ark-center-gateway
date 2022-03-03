@@ -1,6 +1,7 @@
 package com.kt.cloud.gateway.filter;
 
 import com.kt.cloud.gateway.context.GatewayRequestContext;
+import com.kt.component.common.id.TraceIdUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -12,7 +13,6 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * API访问权限过滤器
@@ -41,7 +41,7 @@ public class RequestContextGlobalFilter implements GlobalFilter, Ordered {
         // 如果没有traceId就生成一个
         String traceId = request.getHeaders().getFirst(TRACE_ID);
         if (StringUtils.isEmpty(traceId)) {
-            request.mutate().header(TRACE_ID, UUID.randomUUID().toString()).build();
+            request.mutate().header(TRACE_ID, TraceIdUtils.getId()).build();
         }
     }
 
