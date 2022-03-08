@@ -21,10 +21,6 @@ public class GatewayFeignRpcContextFilter extends FeignRpcContextFilter implemen
 
     @Override
     protected Map<String, String> getHeaders() {
-        log.info("GatewayFeignRpcContextFilter execute...... {}", Thread.currentThread().getId());
-        Map<String, String> headers = GatewayRequestContext.getHeaders();
-        log.info("get headers -> {} {}", headers, Thread.currentThread().getId());
-//        return new HashMap<>();
-        return headers;
+        return GatewayRequestContext.getHeaders();
     }
 }
