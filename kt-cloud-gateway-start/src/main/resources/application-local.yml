@@ -8,12 +8,12 @@ spring:
           '[/**]':
             # 设置允许的域名
             allowedOrigins:
-              - "http://localhost"
+              - "*"
             # 允许所有头信息
             allowedHeaders: "*"
             # 设置允许携带cookie
             # 为true时allowedOrigins不允许为* 会报错
-            allowCredentials: true
+            allowCredentials: false
             # 允许跨域请求的请求方式
             allowedMethods:
               - GET
