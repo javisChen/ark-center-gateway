@@ -21,6 +21,9 @@
 	</dependencies>
 
 	<build>
+
+		<finalName>kt-cloud-gateway</finalName>
+
 		<resources>
 		</resources>
 
