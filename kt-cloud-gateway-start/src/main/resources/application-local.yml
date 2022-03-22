@@ -41,21 +41,6 @@ spring:
     name: gateway
   main:
     allow-bean-definition-overriding: true
-logging:
-  level:
-    root: info
-    org:
-      springframework:
-        cloud:
-          gateway:
-            filter:
-              LoadBalancerClientFilter: trace
-    com:
-      kt:
-        cloud:
-          iam:
-            api:
-              access: debug
 kt:
   cloud:
     gateway:

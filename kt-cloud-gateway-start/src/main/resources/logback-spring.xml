@@ -71,7 +71,7 @@
         <appender-ref ref="ROLLING"/>
     </appender>
 
-    <root level="info">
+    <root level="debug">
         <springProfile name="local,dev,test,sit">
             <!-- local本地配置时候打开控制台输出 -->
             <appender-ref ref="STDOUT"/>
