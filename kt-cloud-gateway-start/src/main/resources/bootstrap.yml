@@ -8,7 +8,7 @@ spring:
         server-addr: ${discovery-server-addr}
         namespace: ${nacos-discovery-namespace}
         group: ${nacos-discovery-group}
-        ip: ${nacos-discovery-ip}
+        ip: ${nacos-discovery-ip:}
       config:
         enabled: ${nacos-config-enabled}
         server-addr: ${config-server-addr}
