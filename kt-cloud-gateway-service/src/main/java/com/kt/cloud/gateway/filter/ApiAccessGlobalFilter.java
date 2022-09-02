@@ -10,7 +10,7 @@ import com.kt.cloud.gateway.extractor.TokenExtractor;
 import com.kt.cloud.iam.api.access.request.ApiAccessRequest;
 import com.kt.cloud.iam.api.access.response.ApiAccessResponse;
 import com.kt.cloud.iam.api.access.response.UserResponse;
-import com.kt.component.microservice.rpc.exception.RpcException;
+import com.kt.component.exception.RpcException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
