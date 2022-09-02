@@ -5,7 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.kt.component.dto.BizErrorCode;
 import com.kt.component.dto.ServerResponse;
 import com.kt.component.dto.SingleResponse;
-import com.kt.component.microservice.rpc.exception.RpcException;
+import com.kt.component.exception.RpcException;
 import feign.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler;
@@ -50,7 +50,8 @@ public class GatewayErrorExceptionHandler implements ErrorWebExceptionHandler {
             message = ((NotFoundException) ex).getReason();
         } else if (ex instanceof RpcException) {
             RpcException rpcException = (RpcException) ex;
-            response.setStatusCode(HttpStatus.resolve(rpcException.getResponse().status()));
+            Response feignResponse = (Response) rpcException.getResponse();
+            response.setStatusCode(HttpStatus.resolve(feignResponse.status()));
             service = rpcException.getService();
             message = rpcException.getMessage();
             String bizErrorCode = rpcException.getBizErrorCode();
