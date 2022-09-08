@@ -18,11 +18,14 @@ import org.springframework.core.Ordered;
 import org.springframework.http.server.RequestPath;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -36,6 +39,8 @@ public class ApiAccessGlobalFilter implements GlobalFilter, Ordered {
     private final CloudGatewayConfig cloudGatewayConfig;
     private final TokenExtractor tokenExtractor;
     private final AccessTokenProperties accessTokenProperties = new AccessTokenProperties();
+    
+    private AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     public ApiAccessGlobalFilter(AccessApiFacade accessApiFacade,
                                  CloudGatewayConfig cloudGatewayConfig,
@@ -110,10 +115,16 @@ public class ApiAccessGlobalFilter implements GlobalFilter, Ordered {
     }
 
     private boolean includeAllowList(ServerHttpRequest request) {
-        if (CollUtil.isEmpty(cloudGatewayConfig.getAllowList())) {
+        Set<String> allowList = cloudGatewayConfig.getAllowList();
+        if (CollUtil.isEmpty(allowList)) {
             return false;
         }
-        return cloudGatewayConfig.getAllowList().contains(request.getPath().value());
+        for (String path : allowList) {
+            if (antPathMatcher.match(path, request.getPath().value())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

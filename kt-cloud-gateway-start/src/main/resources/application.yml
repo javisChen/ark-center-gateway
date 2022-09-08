@@ -41,31 +41,5 @@ spring:
     name: gateway
   main:
     allow-bean-definition-overriding: true
-logging:
-  level:
-    root: info
-    org:
-      springframework:
-        cloud:
-          gateway:
-            filter:
-              LoadBalancerClientFilter: trace
-    com:
-      kt:
-        cloud:
-          iam:
-            api:
-              access: debug
-kt:
-  cloud:
-    gateway:
-      allow-list:
-        - /iam/v1/login/account
-        - /iam/v1/logout
-        - /iam/v1/user/permission/elements
-        - /iam/v1/user/permission/routes
-    feign:
-      transmit-headers: X-Authorization, X-Trace-Id
-feign:
-  okhttp:
-    enabled: true
+  profiles:
+    active: dev
