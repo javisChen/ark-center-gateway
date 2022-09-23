@@ -5,9 +5,9 @@ import org.springframework.cloud.loadbalancer.support.LoadBalancerClientFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 /**
- * @Author: chenweida
- * @Date: 2022/7/14 18:37
+ * 解决使用CompleteFuture.runAsync调用Feign问题
  */
 @Configuration
 public class LoadBalanceConfig {
