@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: gateway
+ark:
+  center:
+    gateway:
+      allow-list:
+        - /auth/login
+        - 231

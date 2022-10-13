@@ -3,10 +3,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.kt.cloud</groupId>
-    <artifactId>kt-cloud-gateway</artifactId>
+    <groupId>com.ark.center</groupId>
+    <artifactId>ark-center-gateway</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <name>kt-cloud-gateway</name>
+    <name>ark-center-gateway</name>
     <description>Gateway project for Spring Boot</description>
     <packaging>pom</packaging>
 
@@ -16,38 +16,38 @@
     </properties>
 
     <modules>
-        <module>kt-cloud-gateway-acl</module>
-        <module>kt-cloud-gateway-api</module>
-        <module>kt-cloud-gateway-service</module>
-        <module>kt-cloud-gateway-start</module>
+        <module>ark-center-gateway-acl</module>
+        <module>ark-center-gateway-api</module>
+        <module>ark-center-gateway-service</module>
+        <module>ark-center-gateway-start</module>
     </modules>
 
     <dependencyManagement>
 
         <dependencies>
             <dependency>
-                <groupId>com.kt.boot</groupId>
-                <artifactId>kt-dependencies</artifactId>
+                <groupId>com.ark.boot</groupId>
+                <artifactId>ark-dependencies</artifactId>
                 <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
 
             <dependency>
-                <groupId>com.kt.cloud</groupId>
-                <artifactId>kt-cloud-gateway-service</artifactId>
+                <groupId>com.ark.center</groupId>
+                <artifactId>ark-center-gateway-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.kt.cloud</groupId>
-                <artifactId>kt-cloud-gateway-acl</artifactId>
+                <groupId>com.ark.center</groupId>
+                <artifactId>ark-center-gateway-acl</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.kt.cloud</groupId>
-                <artifactId>kt-cloud-iam-api</artifactId>
+                <groupId>com.ark.center</groupId>
+                <artifactId>ark-center-iam-api</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
 
