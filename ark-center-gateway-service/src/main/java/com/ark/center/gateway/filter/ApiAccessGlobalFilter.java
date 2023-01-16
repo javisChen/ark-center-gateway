@@ -5,12 +5,15 @@ import com.ark.center.gateway.acl.AccessApiFacade;
 import com.ark.center.gateway.config.AccessTokenProperties;
 import com.ark.center.gateway.config.CloudGatewayConfig;
 import com.ark.center.gateway.context.GatewayRequestContext;
+import com.ark.center.gateway.context.ReactiveRequestContextHolder;
 import com.ark.center.gateway.exception.GatewayBizException;
-import com.ark.center.gateway.extractor.TokenExtractor;
 import com.ark.center.iam.api.access.request.ApiAccessRequest;
 import com.ark.center.iam.api.access.response.ApiAccessResponse;
 import com.ark.center.iam.api.access.response.UserResponse;
 import com.ark.component.exception.RpcException;
+import com.ark.component.security.base.token.extractor.AccessTokenExtractor;
+import com.ark.component.security.reactive.token.ReactiveDefaultTokenExtractor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -32,22 +35,15 @@ import java.util.concurrent.CompletableFuture;
  */
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class ApiAccessGlobalFilter implements GlobalFilter, Ordered {
 
     private final AccessApiFacade accessApiFacade;
     private final CloudGatewayConfig cloudGatewayConfig;
-    private final TokenExtractor tokenExtractor;
-    private final AccessTokenProperties accessTokenProperties = new AccessTokenProperties();
-    
-    private AntPathMatcher antPathMatcher = new AntPathMatcher();
 
-    public ApiAccessGlobalFilter(AccessApiFacade accessApiFacade,
-                                 CloudGatewayConfig cloudGatewayConfig,
-                                 TokenExtractor tokenExtractor) {
-        this.accessApiFacade = accessApiFacade;
-        this.cloudGatewayConfig = cloudGatewayConfig;
-        this.tokenExtractor = tokenExtractor;
-    }
+    private final ReactiveDefaultTokenExtractor tokenExtractor;
+
+    private final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -70,7 +66,7 @@ public class ApiAccessGlobalFilter implements GlobalFilter, Ordered {
     }
 
     private ApiAccessResponse requestApiAccess(ServerHttpRequest request, RequestPath path) {
-        String accessToken = tokenExtractor.extract(request, accessTokenProperties);
+        String accessToken = tokenExtractor.extract(request);
         ApiAccessRequest apiAccessRequest = createApiAccessRequest(request, path, accessToken);
         CompletableFuture<ApiAccessResponse> apiAccess = CompletableFuture.supplyAsync(() -> {
             // 因为gateway是异步模型，所以要用CompletableFuture来进行异步feign调用
