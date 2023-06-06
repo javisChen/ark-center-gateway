@@ -3,8 +3,8 @@ package com.ark.center.gateway.feign;
 
 
 import com.ark.center.gateway.context.GatewayRequestContext;
-import com.ark.component.microservice.rpc.config.CloudFeignConfig;
-import com.ark.component.microservice.rpc.filter.FeignRpcContextFilter;
+import com.ark.component.microservice.rpc.config.CloudFeignProperties;
+import com.ark.component.microservice.rpc.filter.FeignRpcContextInterceptor;
 import feign.RequestInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -13,10 +13,10 @@ import java.util.Map;
 
 @Component
 @Slf4j
-public class GatewayFeignRpcContextFilter extends FeignRpcContextFilter implements RequestInterceptor {
+public class GatewayFeignRpcContextInterceptor extends FeignRpcContextInterceptor implements RequestInterceptor {
 
-    public GatewayFeignRpcContextFilter(CloudFeignConfig cloudFeignConfig) {
-        super(cloudFeignConfig);
+    public GatewayFeignRpcContextInterceptor(CloudFeignProperties cloudFeignProperties) {
+        super(cloudFeignProperties);
     }
 
     @Override

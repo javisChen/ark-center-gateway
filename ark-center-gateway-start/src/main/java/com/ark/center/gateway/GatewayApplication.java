@@ -10,7 +10,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  */
 @SpringBootApplication()
 @EnableDiscoveryClient
-@EnableFeignClients(basePackages = {"com.ark.center.iam.api"})
+@EnableFeignClients(basePackages = {"com.ark.center.iam.api.*"})
 public class GatewayApplication {
 
 	public static void main(String[] args) {

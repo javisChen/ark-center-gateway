@@ -2,16 +2,13 @@ package com.ark.center.gateway.filter;
 
 import cn.hutool.core.collection.CollUtil;
 import com.ark.center.gateway.acl.AccessApiFacade;
-import com.ark.center.gateway.config.AccessTokenProperties;
 import com.ark.center.gateway.config.CloudGatewayConfig;
 import com.ark.center.gateway.context.GatewayRequestContext;
-import com.ark.center.gateway.context.ReactiveRequestContextHolder;
 import com.ark.center.gateway.exception.GatewayBizException;
 import com.ark.center.iam.api.access.request.ApiAccessRequest;
 import com.ark.center.iam.api.access.response.ApiAccessResponse;
 import com.ark.center.iam.api.access.response.UserResponse;
 import com.ark.component.exception.RpcException;
-import com.ark.component.security.base.token.extractor.AccessTokenExtractor;
 import com.ark.component.security.reactive.token.ReactiveDefaultTokenExtractor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -90,7 +87,7 @@ public class ApiAccessGlobalFilter implements GlobalFilter, Ordered {
         ApiAccessRequest apiAccessRequest = new ApiAccessRequest();
         apiAccessRequest.setAccessToken(accessToken);
         apiAccessRequest.setRequestUri(path.value());
-        apiAccessRequest.setHttpMethod(request.getMethodValue());
+        apiAccessRequest.setHttpMethod(request.getMethod().name());
         apiAccessRequest.setApplicationCode("0");
         return apiAccessRequest;
     }
