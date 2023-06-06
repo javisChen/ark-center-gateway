@@ -34,9 +34,7 @@ public class ApiAccessGlobalFilter implements GlobalFilter, Ordered {
     private final WebClient.Builder webClientBuilder;
     private final ReactiveDiscoveryClient discoveryClient;
     private final CloudGatewayConfig cloudGatewayConfig;
-
     private final ReactiveDefaultTokenExtractor tokenExtractor;
-
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     @Override
