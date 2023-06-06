@@ -12,16 +12,23 @@ import com.ark.component.exception.RpcException;
 import com.ark.component.security.reactive.token.ReactiveDefaultTokenExtractor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.RequestPath;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -35,7 +42,10 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class ApiAccessGlobalFilter implements GlobalFilter, Ordered {
 
-    private final AccessApiFacade accessApiFacade;
+    private final WebClient.Builder webClientBuilder;
+    private final DiscoveryClient discoveryClient;
+    private final LoadBalancerClient loadBalancerClient;
+//    private final AccessApiFacade accessApiFacade;
     private final CloudGatewayConfig cloudGatewayConfig;
 
     private final ReactiveDefaultTokenExtractor tokenExtractor;
@@ -58,7 +68,24 @@ public class ApiAccessGlobalFilter implements GlobalFilter, Ordered {
             UserResponse userResponse = apiAccessResponse.getUserResponse();
         }
         log.info("[API ACCESS FILTER] -> [CHECK PASS]");
-        return chain.filter(exchange);
+//        return chain.filter(exchange);
+        WebClient webClient = webClientBuilder.build();
+        List<ServiceInstance> instances = discoveryClient.getInstances("iam");
+        ServiceInstance instance = loadBalancerClient.choose("iam");
+
+        return webClient.get()
+                .uri(instance.getUri().getPath())
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .onStatus(HttpStatusCode::isError, response -> {
+                    // Handle error status code
+                    return Mono.error(new RuntimeException("Request failed"));
+                })
+                .bodyToMono(String.class)
+                .flatMap(responseBody -> {
+                    // Process the response body
+                    return chain.filter(exchange);
+                });
 
     }
 
@@ -73,7 +100,8 @@ public class ApiAccessGlobalFilter implements GlobalFilter, Ordered {
             GatewayRequestContext.setHeaders(headerMap);
             ApiAccessResponse access;
             try {
-                access = accessApiFacade.getApiAccess(apiAccessRequest);
+//                access = accessApiFacade.getApiAccess(apiAccessRequest);
+                access = null;
             } finally {
                 // 保证会clear，以免内存泄露
                 GatewayRequestContext.clearContext();

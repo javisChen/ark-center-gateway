@@ -1,11 +1,9 @@
-package com.ark.center;
+package com.ark.center.gateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.ComponentScans;
 
 /**
  * @author chenjiawei
@@ -13,7 +11,6 @@ import org.springframework.context.annotation.ComponentScans;
 @SpringBootApplication(
         scanBasePackages = {
                 "com.ark.center.gateway",
-                "com.ark.component.config"
         })
 @EnableDiscoveryClient
 @EnableFeignClients(basePackages = {"com.ark.center.iam.api"})
