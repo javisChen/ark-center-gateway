@@ -1,9 +1,13 @@
 package com.ark.center.gateway.filter;
 
 import cn.hutool.core.collection.CollUtil;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.TypeReference;
+import com.ark.center.auth.client.access.request.ApiAccessRequest;
+import com.ark.center.auth.client.access.response.ApiAccessResponse;
 import com.ark.center.gateway.config.CloudGatewayConfig;
 import com.ark.center.gateway.exception.GatewayBizException;
-import com.ark.center.iam.api.access.request.ApiAccessRequest;
+import com.ark.component.dto.SingleResponse;
 import com.ark.component.security.reactive.token.ReactiveDefaultTokenExtractor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,14 +52,20 @@ public class ApiAccessGlobalFilter implements GlobalFilter, Ordered {
         }
         // 请求认证中心处理
         String accessToken = tokenExtractor.extract(request);
-        log.info("[API ACCESS FILTER] -> [CHECK PASS]");
         ApiAccessRequest apiAccessRequest = createApiAccessRequest(request, path, accessToken);
         WebClient webClient = webClientBuilder
                 .build();
-        return discoveryClient.getInstances("iam")
+        return discoveryClient.getInstances("auth")
                 .flatMap(instance -> invokeIdentity(request, apiAccessRequest, webClient, instance.getUri().toString()))
                 .next()
-                .flatMap(responseBodies -> chain.filter(exchange));
+                .flatMap(responseBodies -> {
+                    SingleResponse<ApiAccessResponse> response = JSON.parseObject(responseBodies, new TypeReference<>() {});
+                    if (response.getData().getResult()) {
+                        log.info("[API ACCESS FILTER] -> [CHECK PASS] [BODY -> {}]", responseBodies);
+                        return chain.filter(exchange);
+                    }
+                    return Mono.error(new GatewayBizException("auth", "无权访问"));
+                });
 
     }
 

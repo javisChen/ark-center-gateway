@@ -47,7 +47,7 @@
 
             <dependency>
                 <groupId>com.ark.center</groupId>
-                <artifactId>ark-center-iam-api</artifactId>
+                <artifactId>ark-center-auth-client</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
 
