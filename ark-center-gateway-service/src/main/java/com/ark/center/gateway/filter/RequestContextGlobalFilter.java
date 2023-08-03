@@ -21,7 +21,7 @@ import java.util.Map;
 @Slf4j
 public class RequestContextGlobalFilter implements GlobalFilter, Ordered {
 
-    private final String TRACE_ID = "X-Trace-Id";
+    private final static String TRACE_ID = "X-Trace-Id";
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -42,12 +42,6 @@ public class RequestContextGlobalFilter implements GlobalFilter, Ordered {
         if (StringUtils.isEmpty(traceId)) {
             request.mutate().header(TRACE_ID, TraceIdUtils.getId()).build();
         }
-    }
-
-    private void saveHeadersToContext(ServerHttpRequest request) {
-        Map<String, String> headerMap = request.getHeaders().toSingleValueMap();
-        log.info("set header -> {}", headerMap);
-        GatewayRequestContext.setHeaders(headerMap);
     }
 
     @Override
