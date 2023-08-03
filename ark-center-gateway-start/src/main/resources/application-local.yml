@@ -49,8 +49,6 @@ ark:
         - /iam/v1/logout
         - /iam/v1/user/permission/elements
         - /iam/v1/user/permission/routes
-    feign:
-      transmit-headers: X-Authorization, X-Trace-Id
 feign:
   okhttp:
     enabled: true

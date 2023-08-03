@@ -27,13 +27,6 @@ import java.util.List;
 @Configuration
 public class CoreConfig {
 
-//    @Bean
-//    public ReactorServiceInstanceLoadBalancer reactorServiceInstanceLoadBalancer(
-//            ObjectProvider<ServiceInstanceListSupplier> serviceInstanceListSupplierProvider,
-//            NacosDiscoveryProperties nacosDiscoveryProperties) {
-//        return new NacosLoadBalancer(serviceInstanceListSupplierProvider, "iam", nacosDiscoveryProperties);
-//    }
-
     @Bean
     @ConditionalOnMissingBean(HttpMessageConverters.class)
     public HttpMessageConverters fastJsonHttpMessageConverters() {

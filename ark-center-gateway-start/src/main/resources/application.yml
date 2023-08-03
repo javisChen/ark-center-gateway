@@ -70,14 +70,14 @@ spring:
           uri: localhost:${server.port}
           predicates:
             - Path=/${spring.application.name}/**
-        - id: iam
-          uri: lb://iam
-          predicates:
-            - Path=/iam/**
-        - id: eop
-          uri: lb://eop
-          predicates:
-            - Path=/cop/**
+#        - id: iam
+#          uri: lb://iam
+#          predicates:
+#            - Path=/iam/**
+#        - id: eop
+#          uri: lb://eop
+#          predicates:
+#            - Path=/cop/**
 logging:
   level:
     root: debug

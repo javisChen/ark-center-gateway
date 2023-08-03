@@ -4,7 +4,7 @@ import com.ark.component.exception.BizException;
 
 public class GatewayBizException extends BizException {
 
-    private String service;
+    private final String service;
 
     public GatewayBizException(String service, String errMessage) {
         super(errMessage);

@@ -15,7 +15,7 @@ import java.util.HashSet;
 @ConfigurationProperties(value = "ark.center.gateway")
 @Data
 @RefreshScope
-public class CloudGatewayConfig {
+public class GatewayProperties {
 
     private HashSet<String> allowList;
 }

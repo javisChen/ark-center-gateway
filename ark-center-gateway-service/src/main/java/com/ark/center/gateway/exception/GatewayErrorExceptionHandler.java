@@ -15,6 +15,7 @@ import org.springframework.cloud.gateway.support.NotFoundException;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ResponseStatusException;
@@ -56,21 +57,24 @@ public class GatewayErrorExceptionHandler implements ErrorWebExceptionHandler {
             message = rpcException.getMessage();
             String bizErrorCode = rpcException.getBizErrorCode();
             serverResponse = SingleResponse.error(service, bizErrorCode, message);
-        } else if (ex instanceof GatewayBizException) {
+        } else if (ex instanceof GatewayBizException gatewayBizException) {
             response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
             message = ex.getMessage();
-            service = ((GatewayBizException) ex).getService();
+            service = gatewayBizException.getService();
             serverResponse = SingleResponse.error(service, String.valueOf(HttpStatus.SERVICE_UNAVAILABLE.value()),
                     message);
         } else if (ex instanceof ResponseStatusException responseStatusException) {
             response.setStatusCode(responseStatusException.getStatusCode());
             message = ex.getMessage();
             serverResponse = SingleResponse.error(service, BizErrorCode.USER_ERROR.getCode(), message);
+        }  else if (ex instanceof AuthException authException) {
+            response.setStatusCode(HttpStatusCode.valueOf(authException.getCode()));
+            message = ex.getMessage();
+            serverResponse = SingleResponse.error(service, BizErrorCode.USER_ERROR.getCode(), message);
         } else {
             serverResponse = SingleResponse.error(service, String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), message);
         }
-
-        log.error("[Gateway]：网关路由异常 ->", ex);
+        log.error("[Gateway]：网关路由异常", ex);
         final byte[] result = JSON.toJSONBytes(serverResponse);
         return response
                 .writeWith(Mono.fromSupplier(() -> response.bufferFactory().wrap(result)));
