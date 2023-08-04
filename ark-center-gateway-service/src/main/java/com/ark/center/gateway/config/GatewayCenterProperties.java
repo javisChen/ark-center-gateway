@@ -15,7 +15,7 @@ import java.util.HashSet;
 @ConfigurationProperties(value = "ark.center.gateway")
 @Data
 @RefreshScope
-public class GatewayProperties {
+public class GatewayCenterProperties {
 
     private HashSet<String> allowList;
 }

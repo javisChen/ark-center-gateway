@@ -1,7 +1,7 @@
 package com.ark.center.gateway.filter;
 
 import cn.hutool.core.collection.CollUtil;
-import com.ark.center.gateway.config.GatewayProperties;
+import com.ark.center.gateway.config.GatewayCenterProperties;
 import com.ark.center.gateway.remote.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class ApiAccessGlobalFilter implements GlobalFilter, Ordered {
 
-    private final GatewayProperties gatewayProperties;
+    private final GatewayCenterProperties gatewayCenterProperties;
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     private final AuthService authService;
@@ -44,9 +44,9 @@ public class ApiAccessGlobalFilter implements GlobalFilter, Ordered {
     }
 
     private boolean includeAllowList(ServerHttpRequest request) {
-        Set<String> allowList = gatewayProperties.getAllowList();
-        if (CollUtil.isNotEmpty(allowList)) {
-            return false;
+        Set<String> allowList = gatewayCenterProperties.getAllowList();
+        if (CollUtil.isEmpty(allowList)) {
+            return true;
         }
         return allowList.stream().anyMatch(path -> antPathMatcher.match(path, request.getPath().value()));
     }
