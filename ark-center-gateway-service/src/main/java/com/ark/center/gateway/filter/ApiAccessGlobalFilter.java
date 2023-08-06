@@ -46,7 +46,7 @@ public class ApiAccessGlobalFilter implements GlobalFilter, Ordered {
     private boolean includeAllowList(ServerHttpRequest request) {
         Set<String> allowList = gatewayCenterProperties.getAllowList();
         if (CollUtil.isEmpty(allowList)) {
-            return true;
+            return false;
         }
         return allowList.stream().anyMatch(path -> antPathMatcher.match(path, request.getPath().value()));
     }
