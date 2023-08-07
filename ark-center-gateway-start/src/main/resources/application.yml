@@ -34,7 +34,7 @@ spring:
         prefix: ${spring.application.name}
         refresh-enabled: true
         shared-configs:
-          - common-${spring.profiles.active}.yml
+          - common.yml
         # 开启检查spring.config.import
         import-check:
           enabled: true

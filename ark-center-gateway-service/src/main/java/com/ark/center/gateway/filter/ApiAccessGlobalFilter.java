@@ -29,18 +29,20 @@ public class ApiAccessGlobalFilter implements GlobalFilter, Ordered {
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     private final AuthService authService;
+    private final static String HEADER_GW = "X-From";
+    private final static String HEADER_GW_VALUE = "gw";
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         RequestPath path = request.getPath();
+        request.mutate().header(HEADER_GW, HEADER_GW_VALUE);
         // 检查是否存在白名单内
         if (includeAllowList(request)) {
             return chain.filter(exchange);
         }
         // 请求认证中心处理
         return authService.auth(exchange, chain, request, path);
-
     }
 
     private boolean includeAllowList(ServerHttpRequest request) {
