@@ -3,6 +3,7 @@ package com.ark.center.gateway.exception;
 import cn.hutool.core.io.IoUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.ark.center.gateway.context.ContextConst;
 import com.ark.component.dto.BizErrorCode;
 import com.ark.component.dto.ServerResponse;
 import com.ark.component.dto.SingleResponse;
@@ -10,13 +11,16 @@ import com.ark.component.exception.RpcException;
 import feign.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.MDC;
 import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler;
 import org.springframework.cloud.gateway.support.NotFoundException;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
@@ -41,10 +45,18 @@ public class GatewayErrorExceptionHandler implements ErrorWebExceptionHandler {
         if (response.isCommitted()) {
             return Mono.error(ex);
         }
-        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-        if (ex instanceof ResponseStatusException) {
-            response.setStatusCode(((ResponseStatusException) ex).getStatusCode());
-        }
+        HttpHeaders responseHeaders = response.getHeaders();
+        HttpHeaders requestHeaders = exchange.getRequest().getHeaders();
+
+        MDC.put(ContextConst.TRACE_ID_KEY, requestHeaders.getFirst(ContextConst.TRACE_ID_KEY));
+
+        responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+        return handleException(ex, response);
+    }
+
+    @NotNull
+    private Mono<Void> handleException(@NotNull Throwable ex, ServerHttpResponse response) {
         String message = ex.getMessage();
         String service = "";
         ServerResponse serverResponse = null;
@@ -74,20 +86,10 @@ public class GatewayErrorExceptionHandler implements ErrorWebExceptionHandler {
         } else {
             serverResponse = SingleResponse.error(service, String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), message);
         }
-        log.error("[Gateway]：网关路由异常", ex);
+        log.error("Gateway routing error", ex);
         final byte[] result = JSON.toJSONBytes(serverResponse);
         return response
                 .writeWith(Mono.fromSupplier(() -> response.bufferFactory().wrap(result)));
     }
 
-    private String readFromBody(Response feignResponse) {
-        Response.Body body = feignResponse.body();
-        String bodyString = "";
-        try {
-            bodyString = IoUtil.read(body.asInputStream(), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return bodyString;
-    }
 }

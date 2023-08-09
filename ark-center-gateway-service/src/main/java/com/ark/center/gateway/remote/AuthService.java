@@ -5,9 +5,7 @@ import com.alibaba.fastjson2.TypeReference;
 import com.ark.center.auth.client.access.request.ApiAccessRequest;
 import com.ark.center.auth.client.access.response.ApiAccessResponse;
 import com.ark.center.gateway.exception.AuthException;
-import com.ark.center.gateway.exception.GatewayBizException;
 import com.ark.component.dto.SingleResponse;
-import com.ark.component.security.reactive.token.ReactiveDefaultTokenExtractor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.client.ServiceInstance;
@@ -33,10 +31,8 @@ public class AuthService {
 
     private final ReactiveDiscoveryClient discoveryClient;
 
-    private final ReactiveDefaultTokenExtractor tokenExtractor;
     public Mono<Void> auth(ServerWebExchange exchange, GatewayFilterChain chain, ServerHttpRequest request, RequestPath path) {
-        String accessToken = tokenExtractor.extract(request);
-        ApiAccessRequest apiAccessRequest = createApiAccessRequest(request, path, accessToken);
+        ApiAccessRequest apiAccessRequest = createApiAccessRequest(request, path);
         WebClient webClient = webClientBuilder
                 .build();
         return getAuthInstances()
@@ -62,9 +58,8 @@ public class AuthService {
         return discoveryClient.getInstances("auth");
     }
 
-    private ApiAccessRequest createApiAccessRequest(ServerHttpRequest request, RequestPath path, String accessToken) {
+    private ApiAccessRequest createApiAccessRequest(ServerHttpRequest request, RequestPath path) {
         ApiAccessRequest apiAccessRequest = new ApiAccessRequest();
-        apiAccessRequest.setAccessToken(accessToken);
         apiAccessRequest.setRequestUri(path.value());
         apiAccessRequest.setHttpMethod(request.getMethod().name());
         apiAccessRequest.setApplicationCode("0");
@@ -81,7 +76,7 @@ public class AuthService {
                 .bodyValue(apiAccessRequest)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .onStatus(HttpStatusCode::isError, response -> Mono.error(new GatewayBizException("iam", "调用认证中心发生异常")))
+                .onStatus(HttpStatusCode::isError, response -> Mono.error(new AuthException(response.statusCode().value(), "认证不通过")))
                 .bodyToMono(String.class);
     }
 
