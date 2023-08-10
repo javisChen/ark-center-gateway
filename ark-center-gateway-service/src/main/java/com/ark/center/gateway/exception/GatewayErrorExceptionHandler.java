@@ -88,8 +88,7 @@ public class GatewayErrorExceptionHandler implements ErrorWebExceptionHandler {
         }
         log.error("Gateway routing error", ex);
         final byte[] result = JSON.toJSONBytes(serverResponse);
-        return response
-                .writeWith(Mono.fromSupplier(() -> response.bufferFactory().wrap(result)));
+        return response.writeWith(Mono.fromSupplier(() -> response.bufferFactory().wrap(result)));
     }
 
 }
