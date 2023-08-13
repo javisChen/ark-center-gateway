@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
-import org.springframework.http.server.RequestPath;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
@@ -41,8 +40,7 @@ public class ApiAccessGlobalFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange);
         }
         // 请求认证中心处理
-        Mono<Void> auth = authService.auth(exchange, chain);
-        return auth;
+        return authService.auth(exchange, chain);
     }
 
     private boolean includeAllowList(ServerHttpRequest request) {
