@@ -60,8 +60,11 @@ public class GatewayErrorExceptionHandler implements ErrorWebExceptionHandler {
         String message = ex.getMessage();
         String service = "";
         ServerResponse serverResponse = null;
-        if (ex instanceof NotFoundException) {
-            message = ((NotFoundException) ex).getReason();
+        if (ex instanceof NotFoundException notFoundException) {
+            message = notFoundException.getReason();
+            HttpStatusCode statusCode = notFoundException.getStatusCode();
+            response.setStatusCode(statusCode);
+            serverResponse = SingleResponse.error(service, String.valueOf(statusCode.value()), message);
         } else if (ex instanceof RpcException rpcException) {
             Response feignResponse = (Response) rpcException.getResponse();
             response.setStatusCode(HttpStatus.resolve(feignResponse.status()));
@@ -76,13 +79,15 @@ public class GatewayErrorExceptionHandler implements ErrorWebExceptionHandler {
             serverResponse = SingleResponse.error(service, String.valueOf(HttpStatus.SERVICE_UNAVAILABLE.value()),
                     message);
         } else if (ex instanceof ResponseStatusException responseStatusException) {
-            response.setStatusCode(responseStatusException.getStatusCode());
+            HttpStatusCode statusCode = responseStatusException.getStatusCode();
+            response.setStatusCode(statusCode);
             message = ex.getMessage();
-            serverResponse = SingleResponse.error(service, BizErrorCode.USER_ERROR.getCode(), message);
+            serverResponse = SingleResponse.error(service, String.valueOf(statusCode.value()), message);
         }  else if (ex instanceof AuthException authException) {
-            response.setStatusCode(HttpStatusCode.valueOf(authException.getCode()));
+            HttpStatusCode status = HttpStatusCode.valueOf(authException.getCode());
+            response.setStatusCode(status);
             message = ex.getMessage();
-            serverResponse = SingleResponse.error(service, BizErrorCode.USER_ERROR.getCode(), message);
+            serverResponse = SingleResponse.error(service, String.valueOf(status.value()), message);
         } else {
             serverResponse = SingleResponse.error(service, String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), message);
         }
