@@ -1,4 +1,7 @@
 FROM openjdk:17-oraclelinux8
+
+RUN microdnf install -y iputils
+
 WORKDIR /app
 COPY ./target/ark-center-gateway.jar /app
 EXPOSE 8082
