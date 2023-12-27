@@ -13,6 +13,12 @@
     <description>ark-center-gateway-start</description>
     <packaging>jar</packaging>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- 存放docker构建相关文件的目录 -->
+        <docker.build.directory>${project.build.directory}/docker/build</docker.build.directory>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.ark.center</groupId>
@@ -23,9 +29,6 @@
     <build>
 
         <finalName>ark-center-gateway</finalName>
-
-        <resources>
-        </resources>
 
         <plugins>
             <plugin>
@@ -44,12 +47,47 @@
             </plugin>
 
             <plugin>
-                <groupId>io.fabric8</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <version>0.40.2</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.2.0</version>
                 <executions>
                     <execution>
-                        <id>build</id>
+                        <id>copy-jar-resources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <!-- 复制Jar到Docker构建目录 -->
+                            <outputDirectory>${docker.build.directory}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.build.directory}</directory>
+                                    <includes>
+                                        <include>*.jar</include>
+                                    </includes>
+                                </resource>
+                                <!-- 复制Dockerfile到Docker构建目录 -->
+                                <resource>
+                                    <directory>${project.basedir}/src/main/docker</directory>
+                                    <includes>
+                                        <include>*</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Docker插件 -->
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.43.4</version>
+                <executions>
+                    <execution>
+                        <id>docker-build-image</id>
                         <phase>package</phase>
                         <goals>
                             <goal>build</goal>
@@ -59,9 +97,9 @@
                 <configuration>
                     <images>
                         <image>
-                            <name>ark-center-gateway:v1</name>
+                            <name>${project.build.finalName}:1.0.0</name>
                             <build>
-                                <dockerFileDir>${basedir}</dockerFileDir>
+                                <dockerFileDir>${docker.build.directory}</dockerFileDir>
                             </build>
                         </image>
                     </images>
