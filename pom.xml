@@ -60,6 +60,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.10.1</version>
                 <configuration>
+                    <parameters>true</parameters>
                     <source>21</source>
                     <target>21</target>
                     <encoding>UTF-8</encoding>
