@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 网关配置
@@ -17,5 +17,6 @@ import java.util.HashSet;
 @RefreshScope
 public class GatewayCenterProperties {
 
-    private HashSet<String> allowList;
+    private Set<String> allowList;
+
 }

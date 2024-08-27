@@ -1,10 +1,6 @@
 package com.ark.center.gateway.remote;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.TypeReference;
-import com.ark.center.auth.client.access.response.ApiAccessResponse;
 import com.ark.center.gateway.exception.AuthException;
-import com.ark.component.dto.SingleResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.client.ServiceInstance;
@@ -40,7 +36,7 @@ public class AuthService {
                 .flatMap(instance -> doRequest(request, apiAccessRequest, webClient, instance.getUri().toString()))
                 .next()
                 .flatMap(responseBodies -> {
-                    SingleResponse<ApiAccessResponse> response = JSON.parseObject(responseBodies, new TypeReference<>() {});
+                    // SingleResponse<ApiAccessResponse> response = JSON.parseObject(responseBodies, new TypeReference<>() {});
                     return chain.filter(exchange);
 //                    ApiAccessResponse accessResponse = response.getData();
 //                    if (accessResponse.getCode().equals(200)) {

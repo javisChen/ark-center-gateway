@@ -18,7 +18,7 @@ import reactor.core.publisher.Mono;
  */
 @Component
 @Slf4j
-public class RequestContextGlobalFilter implements GlobalFilter, Ordered {
+public class RequestContextFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {

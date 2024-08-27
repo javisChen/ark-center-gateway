@@ -22,13 +22,16 @@ import java.util.Set;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class ApiAccessGlobalFilter implements GlobalFilter, Ordered {
+public class ApiAccessFilter implements GlobalFilter, Ordered {
 
     private final GatewayCenterProperties gatewayCenterProperties;
+
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     private final AuthService authService;
+
     private final static String HEADER_GW = "X-From";
+
     private final static String HEADER_GW_VALUE = "gw";
 
     @Override

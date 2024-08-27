@@ -4,4 +4,6 @@
     <!-- 引入公用配置 -->
     <include resource="com/ark/component/logging/ark-logback-base.xml"/>
 
+    <logger name="com.ark.center.gateway.filter" level="debug"/>
+
 </configuration>
