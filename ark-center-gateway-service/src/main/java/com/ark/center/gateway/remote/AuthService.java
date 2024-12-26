@@ -7,6 +7,7 @@ import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.ReactiveDiscoveryClient;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.RequestPath;
@@ -16,6 +17,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -76,7 +79,10 @@ public class AuthService {
                 .bodyValue(apiAccessRequest)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .onStatus(HttpStatusCode::isError, response -> Mono.error(new AuthException(response.statusCode().value(), "认证不通过")))
+                .onStatus(HttpStatusCode::isError, response -> Mono.error(
+                        new AuthException(response.statusCode().value(),
+                                Objects.requireNonNull(HttpStatus.resolve(response.statusCode().value())).getReasonPhrase()))
+                )
                 .bodyToMono(String.class);
     }
 
