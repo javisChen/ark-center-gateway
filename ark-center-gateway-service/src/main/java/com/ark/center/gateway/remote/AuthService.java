@@ -24,7 +24,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Slf4j
 public class AuthService {
-    private final static String AUTH_URI = "/v1/access/api";
+    private final static String AUTH_URI = "/v1/access/api/auth";
 
     private final WebClient.Builder webClientBuilder;
 
